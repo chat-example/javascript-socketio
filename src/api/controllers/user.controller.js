@@ -1,4 +1,4 @@
-import { StatusCodes, ResponsePhrase } from 'http-status-codes';
+import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../constants/common.js';
 import logger from '../../utils/logger.js';
@@ -6,6 +6,7 @@ import userService from '../services/user.service.js';
 import prismaClient from '../../libs/prismaClient.js';
 import dayjs from 'dayjs';
 import passport from 'passport';
+import UserDTO from '../dtos/user.dto.js';
 
 class UserController {
   prismaClient;
@@ -19,29 +20,26 @@ class UserController {
   }
 
   async signInByEmail(req, res, next) {
-    try {
-      this.logger.debug('user email sign in start');
-      passport.authenticate('local', (passportError, user, info) => {
-        if (passportError || !user) {
-          res.status(StatusCodes.BAD_REQUEST).json(info);
+    this.logger.debug('[signInByEmail] user email sign in start');
+    passport.authenticate('local', (passportError, user, info) => {
+      if (passportError || !user) {
+        res.status(StatusCodes.BAD_REQUEST).json(info);
+        return;
+      }
+
+      this.logger.debug(`[signInByEmail] user email sign in success ${user.id}`);
+      req.login(user, { session: false }, (loginError) => {
+        if (loginError) {
+          res.status(StatusCodes.BAD_REQUEST).send(loginError);
+          return;
         }
 
-        this.logger.debug(`user email sign in success ${user.id}`);
-        req.login(user, { session: false }, (loginError) => {
-          if (loginError) {
-            res.status(StatusCodes.BAD_REQUEST).send(loginError);
-          }
+        const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
-          const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
-
-          res.cookie('accessKey', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
-          res.status(StatusCodes.NO_CONTENT).send(ResponsePhrase.NO_CONTENT);
-        });
-      })(req,res);
-    } catch (error) {
-      this.logger.error(error)
-      next(error)
-    }
+        res.cookie('accessToken', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
+        res.status(StatusCodes.NO_CONTENT).send(ReasonPhrases.NO_CONTENT);
+      });
+    })(req, res, next);
   }
 
   async signUpByEmail(req, res, next) {
@@ -50,42 +48,46 @@ class UserController {
 
       const user = await this.userService.create({ email, password, nickname, });
 
-      this.logger.debug(`User created with Id ${user.id}`)
+      this.logger.debug(`[signUpByEmail] User created with Id ${user.id}`)
 
       const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
-      res.cookie('accessKey', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
-      res.status(StatusCodes.CREATED).send(ResponsePhrase.CREATED);
+      res.cookie('accessToken', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
+      res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
     } catch (error) {
       this.logger.error(error);
       next(error);
     }
   }
 
-  async authByToken(req,res,next) {
-    try {
-      this.logger.debug('user jwt sign in start');
-      passport.authenticate('jwt', (passportError, user, info) => {
-        if (passportError || !user) {
-          res.status(StatusCodes.BAD_REQUEST).json(info);
-        }
+  async authWithToken(req,res,next, callback) {
+    this.logger.debug('[authWithToken] user jwt sign in start');
+    passport.authenticate('jwt', (passportError, user, info) => {
+      if (passportError || !user) {
+        res.status(StatusCodes.BAD_REQUEST).json(info);
+        return;
+      }
+      this.logger.debug(`[authWithToken] user jwt sign in success ${user.id}`);
 
-        this.logger.debug(`user jwt sign in success ${user.id}`);
-        req.login(user, { session: false }, (loginError) => {
-          if (loginError) {
-            res.status(StatusCodes.BAD_REQUEST).send(loginError);
-          }
+      callback(user);
+    })(req, res, next);
+  }
 
-          const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
-
-          res.cookie('accessKey', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
-          res.status(StatusCodes.NO_CONTENT).send(ResponsePhrase.NO_CONTENT);
+  async updateWithToken(req, res, next) {
+    this.authWithToken(req, res, next, (async (user) => {
+      try {
+        const userData = UserDTO.from({
+          ...req.body,
+          id: user.id
         });
-      })(req,res);
-    } catch (error) {
-      this.logger.error(error);
-      next(error);
-    } 
+  
+        const updatedUser = await this.userService.update(userData);
+        res.status(StatusCodes.OK).json(updatedUser);
+      } catch (error) {
+        this.logger.error(error);
+        next(error);
+      }
+    }).bind(this));
   }
 }
 

@@ -79,6 +79,31 @@ class UserService {
 
     return UserDTO.from(createdUser);
   }
+
+  async update({ id, email, password, nickname }) {
+    this.logger.debug(`[user update] update start with id ${id}`)
+    const user = await this.findById({ id });
+
+    this.logger.debug(`[user update] find with id ${id}`)
+    if (!user) {
+      throw new Error('User not exists');
+    }
+    this.logger.debug(`[user update] found with id ${user.id}`)
+
+    const updatedUser = await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        email,
+        password,
+        nickname,
+      }
+    });
+    this.logger.debug(`[user update] update end with id ${updatedUser.id}`)
+
+    return UserDTO.from(updatedUser);
+  }
 }
 
 const userService = new UserService({ prisma: prismaClient, logger });

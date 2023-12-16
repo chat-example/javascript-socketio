@@ -8,6 +8,7 @@ import clientLogs from './client-log.config.js';
 import routes from '../api/routes/v1/index.js';
 import passportConfig from '../api/middlewares/passport.js';
 import passport from 'passport'
+import cookieParser from 'cookie-parser';
 
 BigInt.prototype.toJSON = function() { return this.toString(); }
 
@@ -33,6 +34,9 @@ app.use(cors());
 // parse body params and attache them to req.body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// cookie
+app.use(cookieParser());
 
 // gzip compression
 app.use(compress());

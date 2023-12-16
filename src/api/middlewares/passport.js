@@ -22,6 +22,7 @@ const jwtStrategy = new StrategyJWT({
     if (req && req.cookies) {
       token = req.cookies['accessToken'];
     }
+
     return token;
   },
   secretOrKey: process.env.JWT_SECRET,
