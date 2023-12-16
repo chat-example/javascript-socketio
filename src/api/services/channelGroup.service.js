@@ -1,9 +1,12 @@
+import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 import prismaClient from '../../libs/prismaClient.js';
 import ChannelGroupDTO from '../dtos/channelGroup.dto.js';
+import serverJoinedUserService from './serverJoinedUser.service.js';
 
 class ChannelGroupService {
-  constructor({prismaClient}) {
+  constructor({prismaClient, serverJoinedUserService}) {
     this.prismaClient = prismaClient;
+    this.serverJoinedUserService = serverJoinedUserService;
   }
 
   async list({ serverId }) {
@@ -21,7 +24,14 @@ class ChannelGroupService {
     return ChannelGroupDTO.from(channelGroups);
   }
 
-  async create({ serverId, channelGroup }) {
+  async create({ user, serverId, channelGroup }) {
+    if (!this.serverJoinedUserService.isAdmin({user, server: { id: serverId }})) { 
+      throw new APIError({
+        message: ReasonPhrases.UNAUTHORIZED,
+        status: StatusCodes.UNAUTHORIZED,
+      });
+    }
+
     const { name, description } = channelGroup;
 
     const createdChannelGroup = await this.prismaClient.channelGroup.create({
@@ -39,7 +49,14 @@ class ChannelGroupService {
     return ChannelGroupDTO.from(createdChannelGroup);
   }
 
-  async update({ serverId, channelGroup }) {
+  async update({ user, serverId, channelGroup }) {
+    if (!this.serverJoinedUserService.isAdmin({user, server: {id: serverId,}})) {
+      throw new APIError({
+        message: ReasonPhrases.UNAUTHORIZED,
+        status: StatusCodes.UNAUTHORIZED,
+      });
+    }
+
     const { id, name, description } = channelGroup;
 
     const updatedChannelGroup = await this.prismaClient.channelGroup.update({
@@ -61,6 +78,13 @@ class ChannelGroupService {
   }
 
   async delete({ channelGroup }) {
+    if (!this.serverJoinedUserService.isAdmin({user, server: {id: serverId,}})) {
+      throw new APIError({
+        message: ReasonPhrases.UNAUTHORIZED,
+        status: StatusCodes.UNAUTHORIZED,
+      });
+    }
+
     const { id } = channelGroup;
 
     await this.prismaClient.channelGroup.delete({
@@ -73,6 +97,7 @@ class ChannelGroupService {
 
 const channelGroupService = new ChannelGroupService({
   prismaClient,
+  serverJoinedUserService,
 });
 
 export default channelGroupService;
