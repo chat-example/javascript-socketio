@@ -1,5 +1,5 @@
-import channelGroupService from "../services/channelGroup.service";
-import logger from "../../utils/logger";
+import channelGroupService from "../services/channelGroup.service.js";
+import logger from "../../utils/logger.js";
 
 class ChannelGroupController {
   logger;

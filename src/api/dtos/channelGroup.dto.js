@@ -1,5 +1,5 @@
 
-import ChannelDTO from './channel.dto';
+import ChannelDTO from './channel.dto.js';
 class ChannelGroupDTO {
   id
   name

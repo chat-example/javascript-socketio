@@ -19,3 +19,5 @@ class ChannelDTO {
     return dto;
   }
 }
+
+export default ChannelDTO;
