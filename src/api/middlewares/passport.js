@@ -1,6 +1,7 @@
 import {Strategy as StrategyJWT } from 'passport-jwt';
 import { Strategy as StrategyLocal} from 'passport-local';
 import userService from '../services/user.service.js';
+import { ACCESS_TOKEN } from '../../constants/index.js';
 
 const localStrategy = new StrategyLocal({
   usernameField: 'email',
@@ -20,7 +21,7 @@ const jwtStrategy = new StrategyJWT({
   jwtFromRequest: (req) => {
     let token = null;
     if (req && req.cookies) {
-      token = req.cookies['accessToken'];
+      token = req.cookies[ACCESS_TOKEN];
     }
 
     return token;

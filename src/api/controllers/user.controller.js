@@ -1,6 +1,6 @@
 import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../../constants/common.js';
+import { JWT_SECRET, ACCESS_TOKEN } from '../../constants/index.js';
 import logger from '../../utils/logger.js';
 import userService from '../services/user.service.js';
 import prismaClient from '../../libs/prismaClient.js';
@@ -36,7 +36,7 @@ class UserController {
 
         const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
-        res.cookie('accessToken', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
+        res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
         res.status(StatusCodes.NO_CONTENT).send(ReasonPhrases.NO_CONTENT);
       });
     })(req, res, next);
@@ -52,7 +52,7 @@ class UserController {
 
       const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
-      res.cookie('accessToken', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
+      res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
       res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
     } catch (error) {
       this.logger.error(error);

@@ -1,7 +1,7 @@
 import httpStatus from 'http-status-codes';
 import { ValidationError } from 'express-validation';
 import APIError from '../../utils/APIError.js';
-import { ENV } from '../../constants/common.js';
+import { ENV } from '../../constants/index.js';
 
 /**
  * Error handler. Send stacktrace only during development

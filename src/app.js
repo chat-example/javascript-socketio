@@ -1,6 +1,6 @@
 import { createServer }  from 'http';
 import app from './config/express.config.js';
-import { PORT, ENV } from './constants/common.js';
+import { PORT, ENV } from './constants/index.js';
 import logger from './utils/logger.js';
 import { Server } from 'socket.io';
 

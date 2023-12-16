@@ -1,4 +1,4 @@
-import { ENV } from '../constants/common.js';
+import { ENV } from '../constants/index.js';
 import { PrismaClient } from '@prisma/client';
 
 let prisma;
