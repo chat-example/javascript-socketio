@@ -12,7 +12,7 @@ class UserService {
   }
 
   async signInByEmail({ email, password }) {
-    this.logger.info(`user login start`);
+    this.logger.debug(`user login start`);
 
     const user = await this.prisma.user.findUnique({
       where: {
@@ -20,23 +20,23 @@ class UserService {
       }
     });
 
-    this.logger.info(`user login start with id ${user?.id}`);
+    this.logger.debug(`user login start with id ${user?.id}`);
 
     if (!user) {
       throw new Error('User not found');
     }
 
-    this.logger.info(`user login success with id ${user?.id}`);
+    this.logger.debug(`user login success with id ${user?.id}`);
 
     const { hash }  = await hashString(password, user.salt);
 
-    this.logger.info(`user passcheck start with id ${user?.id}`)
+    this.logger.debug(`user passcheck start with id ${user?.id}`)
 
     if (user.password !== hash) {
       throw new Error('Password is incorrect');
     }
 
-    this.logger.info(`user passcheck success with id ${user?.id}`)
+    this.logger.debug(`user passcheck success with id ${user?.id}`)
 
     return UserDTO.from(user);
   }
