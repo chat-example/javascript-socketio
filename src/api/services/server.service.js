@@ -64,9 +64,10 @@ class ServerService {
       });
     }
 
-    const { name, description, icon, banner } = server;
+    const { id, name, description, icon, banner } = server;
 
-    const updatedServer = await this.prismaClient.server.create({
+    const updatedServer = await this.prismaClient.server.update({
+      where: { id: id },
       data: {
         name,
         description,
@@ -125,6 +126,21 @@ class ServerService {
   }
 
   async leave({ user, server }) { 
+    const { count } = this.prismaClient.serverJoinedUser.aggregate({
+      where: {
+        serverId: server.id,
+        role: Role.ADMIN,
+      },
+      count: true,
+    });
+
+    if (count <= 1) {
+      throw new APIError({
+        status: StatusCodes.BAD_REQUEST,
+        message: 'Cannot leave server with only one owner',
+      });
+    }
+
     await this.prismaClient.serverJoinedUser.delete({
       where: {
         serverId_userId: {
@@ -133,6 +149,7 @@ class ServerService {
         }
       },
     });
+
   }
 }
 
