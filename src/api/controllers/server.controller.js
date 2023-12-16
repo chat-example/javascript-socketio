@@ -17,13 +17,16 @@ class ServerController {
   }
 
   async list(req,res,next) {
-    try {
-      const servers = await this.prismaClient.server.findMany({});
+    authByToken(req, res, next, (async (user) => {
+      try {
+        const servers = await this.serverService.list({ user });
 
-      res.status(StatusCodes.OK).json(servers.map(ServerDTO.from));
-    } catch (e) {
-      next(e);
-    }
+        res.status(StatusCodes.OK).json(servers);
+      } catch (error) {
+        this.logger.error(error);
+        next(error);
+      }
+    }).bind(this));
   }
 
   async create(req, res, next) {

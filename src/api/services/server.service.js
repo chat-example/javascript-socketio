@@ -24,6 +24,18 @@ class ServerService {
     return joinedUser.role === Role.ADMIN;
   }
 
+  async list({ user }) {
+    const servers = await this.prismaClient.serverJoinedUser.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        server: true,
+      },
+    });
+
+    return servers.map(({ server }) => ServerDTO.from(server));
+  }
 
   async create({ user, server }) {
     const { name, description, icon, banner } = server;
