@@ -34,7 +34,7 @@ class UserController {
           res.status(StatusCodes.BAD_REQUEST).send(loginError);
           return;
         }
-        setTokenOnRes(res);
+        this.setTokenOnRes(res, user);
 
         res.status(StatusCodes.NO_CONTENT).send(ReasonPhrases.NO_CONTENT);
       });
@@ -43,12 +43,14 @@ class UserController {
 
   async signUpByEmail(req, res, next) {
     try {
-      const { email, password, nickname } = req.body;
+      this.logger.debug('[userController/signUpByEmail] user email sign up start')
+
+      const { email, password, nickname = "temp" } = req.body;
 
       const user = await this.userService.create({ email, password, nickname, });
 
-      this.logger.debug(`[signUpByEmail] User created with Id ${user.id}`)
-      setTokenOnRes(res);
+      this.logger.debug(`[userController/signUpByEmail] User created with Id ${user.id}`)
+      this.setTokenOnRes(res, user);
 
       res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
     } catch (error) {
@@ -97,7 +99,7 @@ class UserController {
   }
 
 
-  async setTokenOnRes(res) {
+  async setTokenOnRes(res, user) {
     const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
     res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true })
