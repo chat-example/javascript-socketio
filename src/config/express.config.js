@@ -6,6 +6,8 @@ import cors from './cors.config.js';
 import * as error  from '../api/middlewares/error.js';
 import clientLogs from './client-log.config.js';
 import routes from '../api/routes/v1/index.js';
+import passportConfig from '../api/middlewares/passport.js';
+import passport from 'passport'
 
 BigInt.prototype.toJSON = function() { return this.toString(); }
 
@@ -21,6 +23,9 @@ app.use((req, _, next) => {
 	req.headers.origin = req.headers.origin || req.headers.host;
 	next();
 });
+
+app.use(passport.initialize())
+passportConfig(passport);
 
 // CORS configuration
 app.use(cors());
