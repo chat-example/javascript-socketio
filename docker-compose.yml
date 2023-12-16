@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres
     restart: always
-    container_name: postgres
+    container_name: chat-postgres
     ports:
       - "5440:5432"
     environment: 

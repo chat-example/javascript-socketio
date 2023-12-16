@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id BigInt @id @default(autoincrement())
+  email String @unique
+  password String
+
+  nickname String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  serverJoinedUsers ServerJoinedUser[]
+}
+
+model ServerJoinedUser {
+  id BigInt @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  userId BigInt?
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: SetNull)
+
+  serverId BigInt
+  server Server @relation(fields: [serverId], references: [id], onDelete:Cascade, onUpdate: Cascade)
+
+  messages Message[]
+
+  @@unique([userId, serverId])
+}
+
+model Server {
+  id BigInt @id @default(autoincrement())
+  name String
+  password String
+  description String?
+  icon String?
+  banner String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  serverJoinedUsers ServerJoinedUser[]
+  channelGroups ChannelGroup[]
+
+  @@unique([name, password])
+}
+
+model ChannelGroup {
+  id BigInt @id @default(autoincrement())
+  name String
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  serverId BigInt
+  server Server @relation(fields: [serverId], references: [id], onDelete:Cascade, onUpdate: Cascade)
+
+  channels Channel[]
+
+  @@unique([name, serverId])
+}
+
+model Channel {
+  id BigInt @id @default(autoincrement())
+  name String
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  channelGroupId BigInt
+  channelGroup ChannelGroup @relation(fields: [channelGroupId], references: [id], onDelete:Cascade, onUpdate: Cascade)
+
+  messages Message[]
+
+  @@unique([name, channelGroupId])
+}
+
+model Message {
+  id BigInt @id @default(autoincrement())
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  authorId BigInt?
+  author ServerJoinedUser? @relation(fields: [authorId], references: [id], onDelete: SetNull, onUpdate: SetNull)
+
+  channelId BigInt
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
