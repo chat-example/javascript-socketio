@@ -89,6 +89,23 @@ class UserController {
       }
     }).bind(this));
   }
+
+  async deleteWithToken(req, res, next) {
+    this.authWithToken(req, res, next, (async (user) => {
+      try {
+        await this.prismaClient.user.delete({
+          where: {
+            id: user.id
+          },
+        });
+
+        res.status(StatusCodes.NO_CONTENT).send(ReasonPhrases.NO_CONTENT);
+      } catch (error) {
+        this.logger.error(error);
+        next(error);
+      }
+    }).bind(this));
+  }
 }
 
 const userController = new UserController({logger, userService, prismaClient});
