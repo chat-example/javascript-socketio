@@ -1,4 +1,4 @@
-import { StatusCodes } from 'http-status-codes';
+import { StatusCodes, ResponsePhrase } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../constants/common.js';
 import logger from '../../utils/logger.js';
@@ -35,7 +35,7 @@ class UserController {
           const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
           res.cookie('accessKey', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
-          res.status(StatusCodes.NO_CONTENT).send('');
+          res.status(StatusCodes.NO_CONTENT).send(ResponsePhrase.NO_CONTENT);
         });
       })(req,res);
     } catch (error) {
@@ -55,7 +55,7 @@ class UserController {
       const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
       res.cookie('accessKey', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
-      res.status(StatusCodes.CREATED).send(String(user.id));
+      res.status(StatusCodes.CREATED).send(ResponsePhrase.CREATED);
     } catch (error) {
       this.logger.error(error);
       next(error);
@@ -79,7 +79,7 @@ class UserController {
           const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
           res.cookie('accessKey', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
-          res.status(StatusCodes.NO_CONTENT).send('');
+          res.status(StatusCodes.NO_CONTENT).send(ResponsePhrase.NO_CONTENT);
         });
       })(req,res);
     } catch (error) {
