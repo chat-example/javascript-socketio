@@ -60,21 +60,8 @@ class UserController {
     }
   }
 
-  async authWithToken(req,res,next, callback) {
-    this.logger.debug('[authWithToken] user jwt sign in start');
-    passport.authenticate('jwt', (passportError, user, info) => {
-      if (passportError || !user) {
-        res.status(StatusCodes.BAD_REQUEST).json(info);
-        return;
-      }
-      this.logger.debug(`[authWithToken] user jwt sign in success ${user.id}`);
-
-      callback(user);
-    })(req, res, next);
-  }
-
-  async updateWithToken(req, res, next) {
-    this.authWithToken(req, res, next, (async (user) => {
+    async updateWithToken(req, res, next) {
+    this.#authWithToken(req, res, next, (async (user) => {
       try {
         const userData = UserDTO.from({
           ...req.body,
@@ -90,8 +77,13 @@ class UserController {
     }).bind(this));
   }
 
+  async signOut(req, res, next) {
+    res.clearCookie(ACCESS_TOKEN)
+    res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
+  }
+
   async deleteWithToken(req, res, next) {
-    this.authWithToken(req, res, next, (async (user) => {
+    this.#authWithToken(req, res, next, (async (user) => {
       try {
         await this.prismaClient.user.delete({
           where: {
@@ -106,6 +98,21 @@ class UserController {
       }
     }).bind(this));
   }
+
+  async #authWithToken(req,res,next, callback) {
+    this.logger.debug('[authWithToken] user jwt sign in start');
+    passport.authenticate('jwt', (passportError, user, info) => {
+      if (passportError || !user) {
+        res.status(StatusCodes.BAD_REQUEST).json(info);
+        return;
+      }
+      this.logger.debug(`[authWithToken] user jwt sign in success ${user.id}`);
+
+      callback(user);
+    })(req, res, next);
+  }
+
+  
 }
 
 const userController = new UserController({logger, userService, prismaClient});

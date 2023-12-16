@@ -5,6 +5,7 @@ const router = Router();
 
 router.post('/signupByEmail', userController.signUpByEmail.bind(userController));
 router.post('/signInByEmail', userController.signInByEmail.bind(userController));
+router.post('/signOut', userController.signOut.bind(userController));
 router.put('/', userController.updateWithToken.bind(userController));
 router.delete('/', userController.deleteWithToken.bind(userController));
 
