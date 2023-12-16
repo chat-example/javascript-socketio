@@ -1,8 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import prismaClient from '../../libs/prismaClient.js';
-import ServerDTO from '../dtos/server.dto.js';
 import serverService from '../services/server.service.js';
-import logger from '../../util/logger.js';
+import logger from '../../utils/logger.js';
 import { authByToken } from '../../utils/functions.js';
 
 class ServerController {
@@ -59,6 +58,32 @@ class ServerController {
     authByToken(req, res, next, (async (user) => { 
       try {
         await this.serverService.delete({ user, server: req.body });
+
+        res.status(StatusCodes.NO_CONTENT).send();
+      } catch (error) { 
+        this.logger.error(error);
+        next(error);
+      }
+    }).bind(this));
+  }
+
+  async join(req, res, next) {
+    authByToken(req, res, next, (async (user) => {
+      try {
+        const server = await this.serverService.join({ user, server: req.body });
+
+        res.status(StatusCodes.OK).json(server);
+      } catch (error) {
+        this.logger.error(error);
+        next(error);
+      }
+    }).bind(this));
+  }
+
+  async leave(req, res, next) {
+    authByToken(req, res, next, (async (user) => {
+      try {
+        await this.serverService.leave({ user, server: req.body });
 
         res.status(StatusCodes.NO_CONTENT).send();
       } catch (error) { 
