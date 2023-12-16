@@ -1,18 +1,24 @@
-import express from 'express';
 import { createServer }  from 'http';
-import path from 'path';
-import { Server }  from 'socket.io';
+import app from './config/express.config.js';
+import { PORT, ENV } from './constants/common.js';
+import logger from './utils/logger.js';
+import { Server } from 'socket.io';
 
-const app = express();
 const server = createServer(app);
+server.listen(PORT, (error) => {
+  if (error) {
+    return logger.error('server failed to start', error);
+  }
+
+  return logger.info(`server started [env, port] = [${ENV}, ${PORT}]`);
+});
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   }
 });
-
-const PORT = process.env.PORT || 3550;
 
 io.on('connection', (socket) => {
   socket.on('send_message', (data) => {
@@ -26,6 +32,4 @@ io.on('connection', (socket) => {
   })
 })
 
-server.listen(PORT, () => {
-  console.log(`Server On : http://localhost:${PORT}/`);
-});
+export default server;
