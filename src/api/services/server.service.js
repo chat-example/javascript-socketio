@@ -4,24 +4,13 @@ import logger from '../../utils/logger.js';
 import { Role } from '@prisma/client';
 import APIError from '../../utils/APIError.js'
 import ServerDTO from '../dtos/server.dto.js';
+import serverJoinedUserService from './serverJoinedUser.service.js';
 
 class ServerService {
-  constructor({ prismaClient, logger }) {
+  constructor({ prismaClient, logger, serverJoinedUserService }) {
     this.prismaClient = prismaClient;
+    this.serverJionedUserService = serverJoinedUserService;
     this.logger = logger;
-  }
-
-  async isOwner({ user, server }) {
-    const joinedUser = await this.prismaClient.serverJoinedUser({
-      where: {
-        serverId_userId: {
-          serverId: server.id,
-          userId: user.id,
-        }
-      },
-    });
-
-    return joinedUser.role === Role.ADMIN;
   }
 
   async list({ user }) {
@@ -69,7 +58,7 @@ class ServerService {
   }
 
   async update({ user, server }) {
-    if (!this.isOwner({ user, server })) {
+    if (!this.serverJionedUserService.isAdmin({ user, server })) {
       throw new APIError({
         status: StatusCodes.UNAUTHORIZED,
         message: ReasonPhrases.UNAUTHORIZED,
@@ -92,7 +81,7 @@ class ServerService {
   }
 
   async delete({ user, server }) {
-    if (!this.isOwner({ user, server })) {
+    if (!this.serverJionedUserService.isAdmin({ user, server })) {
       throw new APIError({
         status: StatusCodes.UNAUTHORIZED,
         message: ReasonPhrases.UNAUTHORIZED,
@@ -168,6 +157,7 @@ class ServerService {
 const serverService = new ServerService({
   prismaClient: prismaClient,
   logger: logger,
+  serverJoinedUserService,
 });
 
 export default serverService;
