@@ -11,7 +11,7 @@ class UserService {
     this.logger = logger;
   }
 
-  async signInByEmail({ email, password }) {
+  async findByEmail({ email, password }) {
     this.logger.debug(`user login start`);
 
     const user = await this.prisma.user.findUnique({
@@ -41,7 +41,7 @@ class UserService {
     return UserDTO.from(user);
   }
 
-  async getUserById({ id }) {
+  async findById({ id }) {
     const user = await this.prisma.user.findUnique({
       where: {
         id,

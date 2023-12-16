@@ -8,7 +8,7 @@ const localStrategy = new StrategyLocal({
   session: false,
 }, async (email, password, done) => {
   try {
-    const user = await userService.signInByEmail({ email, password });
+    const user = await userService.findByEmail({ email, password });
 
     done(null, user);
   } catch (error) {
@@ -27,7 +27,7 @@ const jwtStrategy = new StrategyJWT({
   secretOrKey: process.env.JWT_SECRET,
 }, async (jwtPayload, done) => {
   try {
-    const user = await userService.getUserById({ id: jwtPayload.id });
+    const user = await userService.findById({ id: jwtPayload.id });
 
     done(null, user);
   } catch (error) {
