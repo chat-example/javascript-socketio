@@ -7,6 +7,7 @@ import prismaClient from '../../libs/prismaClient.js';
 import dayjs from 'dayjs';
 import passport from 'passport';
 import UserDTO from '../dtos/user.dto.js';
+import { authByToken } from '../../utils/functions.js'
 
 class UserController {
   prismaClient;
@@ -57,20 +58,20 @@ class UserController {
   }
 
     async updateWithToken(req, res, next) {
-    this.#authWithToken(req, res, next, (async (user) => {
-      try {
-        const userData = UserDTO.from({
-          ...req.body,
-          id: user.id
-        });
-  
-        const updatedUser = await this.userService.update(userData);
-        res.status(StatusCodes.OK).json(updatedUser);
-      } catch (error) {
-        this.logger.error(error);
-        next(error);
-      }
-    }).bind(this));
+      authByToken(req, res, next, (async (user) => {
+        try {
+          const userData = UserDTO.from({
+            ...req.body,
+            id: user.id
+          });
+    
+          const updatedUser = await this.userService.update(userData);
+          res.status(StatusCodes.OK).json(updatedUser);
+        } catch (error) {
+          this.logger.error(error);
+          next(error);
+        }
+      }).bind(this));
   }
 
   async signOut(req, res, next) {
@@ -79,7 +80,7 @@ class UserController {
   }
 
   async deleteWithToken(req, res, next) {
-    this.#authWithToken(req, res, next, (async (user) => {
+    authByToken(req, res, next, (async (user) => {
       try {
         await this.prismaClient.user.delete({
           where: {
@@ -95,18 +96,6 @@ class UserController {
     }).bind(this));
   }
 
-  async #authWithToken(req,res,next, callback) {
-    this.logger.debug('[authWithToken] user jwt sign in start');
-    passport.authenticate('jwt', (passportError, user, info) => {
-      if (passportError || !user) {
-        res.status(StatusCodes.BAD_REQUEST).json(info);
-        return;
-      }
-      this.logger.debug(`[authWithToken] user jwt sign in success ${user.id}`);
-
-      callback(user);
-    })(req, res, next);
-  }
 
   async setTokenOnRes(res) {
     const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)

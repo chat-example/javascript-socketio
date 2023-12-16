@@ -10,3 +10,16 @@ export async function hashString(password, salt) {
     salt,
   };
 }
+
+export function authByToken(req,res,next, callback) {
+  this.logger.debug('[authWithToken] user jwt sign in start');
+  passport.authenticate('jwt', (passportError, user, info) => {
+    if (passportError || !user) {
+      res.status(StatusCodes.BAD_REQUEST).json(info);
+      return;
+    }
+    this.logger.debug(`[authWithToken] user jwt sign in success ${user.id}`);
+
+    callback(user);
+  })(req, res, next);
+}
