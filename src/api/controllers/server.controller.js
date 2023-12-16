@@ -57,7 +57,8 @@ class ServerController {
   async delete(req, res, next) {
     authByToken(req, res, next, (async (user) => { 
       try {
-        await this.serverService.delete({ user, server: req.body });
+        const { serverId }  = req.params;
+        await this.serverService.delete({user, server: { id: serverId }});
 
         res.status(StatusCodes.NO_CONTENT).send();
       } catch (error) { 
