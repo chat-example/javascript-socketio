@@ -1,9 +1,9 @@
 import { StatusCodes, ReasonPhrases } from 'http-status-codes';
-import prismaClient from '../../prisma/client';
-import logger from '../../utils/logger';
+import prismaClient from '../../libs/prismaClient.js';
+import logger from '../../utils/logger.js';
 import { Role } from '@prisma/client';
-import APIError from '../../utils/APIError'
-import ServerDTO from '../dtos/server.dto';
+import APIError from '../../utils/APIError.js'
+import ServerDTO from '../dtos/server.dto.js';
 
 class ServerService {
   constructor({ prismaClient, logger }) {
