@@ -20,13 +20,13 @@ class UserController {
 
   async signInByEmail(req, res, next) {
     try {
-      this.logger.info('user email sign in start');
+      this.logger.debug('user email sign in start');
       passport.authenticate('local', (passportError, user, info) => {
         if (passportError || !user) {
           res.status(StatusCodes.BAD_REQUEST).json(info);
         }
 
-        this.logger.info(`user email sign in success ${user.id}`);
+        this.logger.debug(`user email sign in success ${user.id}`);
         req.login(user, { session: false }, (loginError) => {
           if (loginError) {
             res.status(StatusCodes.BAD_REQUEST).send(loginError);
@@ -50,7 +50,7 @@ class UserController {
 
       const user = await this.userService.create({ email, password, nickname, });
 
-      this.logger.info(`User created with Id ${user.id}`)
+      this.logger.debug(`User created with Id ${user.id}`)
 
       const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
@@ -60,6 +60,32 @@ class UserController {
       this.logger.error(error);
       next(error);
     }
+  }
+
+  async authByToken(req,res,next) {
+    try {
+      this.logger.debug('user jwt sign in start');
+      passport.authenticate('jwt', (passportError, user, info) => {
+        if (passportError || !user) {
+          res.status(StatusCodes.BAD_REQUEST).json(info);
+        }
+
+        this.logger.debug(`user jwt sign in success ${user.id}`);
+        req.login(user, { session: false }, (loginError) => {
+          if (loginError) {
+            res.status(StatusCodes.BAD_REQUEST).send(loginError);
+          }
+
+          const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
+
+          res.cookie('accessKey', token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
+          res.status(StatusCodes.NO_CONTENT).send('');
+        });
+      })(req,res);
+    } catch (error) {
+      this.logger.error(error);
+      next(error);
+    } 
   }
 }
 
