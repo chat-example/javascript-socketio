@@ -33,10 +33,8 @@ class UserController {
           res.status(StatusCodes.BAD_REQUEST).send(loginError);
           return;
         }
+        setTokenOnRes(res);
 
-        const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
-
-        res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
         res.status(StatusCodes.NO_CONTENT).send(ReasonPhrases.NO_CONTENT);
       });
     })(req, res, next);
@@ -49,10 +47,8 @@ class UserController {
       const user = await this.userService.create({ email, password, nickname, });
 
       this.logger.debug(`[signUpByEmail] User created with Id ${user.id}`)
+      setTokenOnRes(res);
 
-      const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
-
-      res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true})
       res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
     } catch (error) {
       this.logger.error(error);
@@ -112,7 +108,11 @@ class UserController {
     })(req, res, next);
   }
 
-  
+  async setTokenOnRes(res) {
+    const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
+
+    res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true })
+  }
 }
 
 const userController = new UserController({logger, userService, prismaClient});
