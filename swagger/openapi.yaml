@@ -6,7 +6,76 @@ info:
   license:
     name: MIT
 servers:
-  - url: http://localhost:3100
+  - url: http://localhost:3100/api/v1
     description: Local server
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        success: 
+          type: boolean
+        message: 
+          type: string
+    user:
+      $ref: './user.yaml#/components/schemas/user'
+  responses:
+    okResponse:
+      description: Success response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success: 
+                type: boolean
+              data: 
+                type: object
+    CreatedResponse:
+      description: Created response
+      content:
+        text/plain:
+          example: Created
+    NoContentResponse:
+      description: No content response
+      content:
+        text/plain:
+          example: No content
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: Bad request
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: Internal server error
+    UnauthorizedError:
+      description: UnAuthorized error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            message: UnAuthorized error
 
-paths: {}
+paths: 
+  /user:
+    $ref: './user.yaml#/~1user'
+  /user/signupByEmail:
+    $ref: './user.yaml#/~1user~1signupByEmail'

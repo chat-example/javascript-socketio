@@ -1,0 +1,75 @@
+components:
+  schemas:
+    user:
+      properties:
+        id:
+          type: string
+          description: bigint인데 json serialize 안되서 string으로 바꿈
+        email:
+          type: string
+        nickname:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+/user:
+  put:
+    tags:
+      - user
+    summary: 유저 정보 수정
+    description: 유저 정보 수정
+    security:
+      - bearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/user'
+    responses:
+      '200':
+        description: Success
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+  delete:
+    tags:
+      - user
+    summary: 유저 정보 삭제
+    description: 유저 정보 삭제
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: Success
+        content:
+          text/plain:
+            schema:
+              $ref: './openapi.yaml#/components/responses/NoContentResponse'
+/user/signupByEmail:
+  post:
+    tags:
+      - user
+    summary: 이메일 회원가입
+    description: 이메일 회원가입
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+              nickname:
+                type: string
+    responses:
+      '200':
+        description: Success
+        content:
+          text/plain:
+            schema:
+              $ref: './openapi.yaml#/components/responses/CreatedResponse'
