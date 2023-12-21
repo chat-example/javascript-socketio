@@ -1,4 +1,6 @@
+import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
+import passport from 'passport';
     
 export async function hashString(password, salt) {
   if (!salt) {
@@ -12,13 +14,18 @@ export async function hashString(password, salt) {
 }
 
 export function authByToken(req,res,next, callback) {
-  this.logger.debug('[authWithToken] user jwt sign in start');
   passport.authenticate('jwt', (passportError, user, info) => {
-    if (passportError || !user) {
-      res.status(StatusCodes.BAD_REQUEST).json(info);
+    if (passportError) {
+      res.status(StatusCodes.BAD_REQUEST).json(passportError);
       return;
     }
-    this.logger.debug(`[authWithToken] user jwt sign in success ${user.id}`);
+
+    if (!user) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        message: 'no user found'
+      });
+      return;
+    }
 
     callback(user);
   })(req, res, next);

@@ -7,17 +7,17 @@ const options = {
 		const whiteList = ['localhost', 'chrome-extension'];
 
 		const index = whiteList.findIndex((aWhiteListedOrigin) => origin.includes(aWhiteListedOrigin));
+
 		if (!origin || index !== -1) {
 			callback(null, true);
 		} else {
-			const error = {
+      callback(new APIError({
 				message: `'${origin}' is not allowed to access the specified route/resource`,
 				status: httpStatus.FORBIDDEN,
-			};
-			callback(new APIError(error), false);
+      }), false);
 		}
 	},
-	credentials: false,
+	credentials: true,
 };
 
 function corsFunction() {
