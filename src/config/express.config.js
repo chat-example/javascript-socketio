@@ -9,6 +9,9 @@ import routes from '../api/routes/v1/index.js';
 import passportConfig from '../api/middlewares/passport.js';
 import passport from 'passport'
 import cookieParser from 'cookie-parser';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
 
 BigInt.prototype.toJSON = function() { return this.toString(); }
 
@@ -17,6 +20,10 @@ BigInt.prototype.toJSON = function() { return this.toString(); }
  * @public
  */
 const app = express();
+
+// swagger
+const swaggerSpec = YAML.load(path.resolve('./build/swagger.yaml'));
+app.use('/api-docs' , swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // This middleware take care of the origin when the origin is undefined.
 // origin is undefined when request is local
