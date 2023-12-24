@@ -96,10 +96,20 @@ class ServerService {
   }
 
   async join({ user, server }) {
+    const { id: serverId } = await this.prismaClient.server.findOne({
+      where: {
+        name: server.name,
+        password: server.password,
+      },
+      select: {
+        id: true,
+      }
+    })
+
     const joinedUser = await this.prismaClient.serverJoinedUser({
       where: {
         serverId_userId: {
-          serverId: server.id,
+          serverId: serverId,
           userId: user.id,
         }
       },
@@ -118,7 +128,7 @@ class ServerService {
         },
         server: {
           connect: {
-            id: server.id,
+            id: serverId,
           }
         },
         role: Role.USER,
