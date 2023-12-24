@@ -27,7 +27,6 @@ class ChannelGroupController {
   }
 
   async create(req, res, next) {
-
     authByToken(req, res, next, (async (user) => {
       try {
         this.logger.info(`[channel group / create] create start]`);

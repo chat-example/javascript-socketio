@@ -18,6 +18,16 @@ class ServerJoinedUserService {
 
     return joinedUser.role === Role.ADMIN;
   }
+
+  async findOne({ user }) {
+    const joinedUser = await this.prismaClient.serverJoinedUser.findFirst({
+      where: {
+        id: user.id,
+      },
+    });
+
+    return joinedUser;
+  }
 }
 
 const serverJoinedUserService = new ServerJoinedUserService(prismaClient);

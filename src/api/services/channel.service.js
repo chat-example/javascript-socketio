@@ -11,21 +11,21 @@ class ChannelService {
   }
 
   async create({ user, serverId, channel }) {
-    if (!this.serverJoinedUserService.isAdmin({ user, serverId })) {
+    if (!this.serverJoinedUserService.isAdmin({ user, server: {id: serverId} })) {
       throw new APIError({
         status: StatusCodes.UNAUTHORIZED,
         message: ReasonPhrases.UNAUTHORIZED,
       })
     }
 
-    const { channelGroupId } = channel;
+    const { channelGroupId, ...channelData } = channel;
 
     const createdChannel = await this.prismaClient.channel.create({
       data: {
-        ...channel,
+        ...channelData,
         channelGroup: {
           connect: {
-            id: channelGroupId
+            id: BigInt(channelGroupId)
           }
         },
       },

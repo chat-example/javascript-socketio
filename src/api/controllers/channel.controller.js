@@ -1,5 +1,6 @@
 import channelService from "../services/channel.service.js";
 import { StatusCodes, ReasonPhrases} from 'http-status-codes';
+import { authByToken } from '../../utils/functions.js';
 
 class ChannelController {
   constructor({ channelService }) {
@@ -10,9 +11,8 @@ class ChannelController {
     authByToken(req, res, next, async (user) => {
       try {
         const { serverId } = req.params;
-        const { channel } = req.body;
   
-        const createdChannel = await this.channelService.create({ user, serverId, channel });
+        const createdChannel = await this.channelService.create({ user, serverId, channel: req.body });
   
         res.status(StatusCodes.CREATED).json(createdChannel);
       } catch (error) {
