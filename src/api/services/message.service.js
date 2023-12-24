@@ -1,7 +1,7 @@
 import prismaClient from '../../libs/prismaClient.js';
 import serverJoinedUserService from './serverJoinedUser.service.js';
 import logger from '../../utils/logger.js';
-import { MessageDTO } from '../dtos/message.dto.js';
+import MessageDTO from '../dtos/message.dto.js';
 
 class MessageService {
   prismaClient;
