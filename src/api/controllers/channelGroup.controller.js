@@ -16,6 +16,7 @@ class ChannelGroupController {
     try {
       this.logger.info(`[channel group / list] list start`);
       const { serverId } = req.params;
+      this.logger.info(`[channel group / list] list params: ${serverId}`);
       const channelGroups = await this.channelGroupService.list({ serverId });
 
       res.status(StatusCodes.OK).json(channelGroups);

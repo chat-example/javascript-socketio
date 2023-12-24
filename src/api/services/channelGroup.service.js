@@ -12,14 +12,14 @@ class ChannelGroupService {
   async list({ serverId }) {
     const channelGroups = await this.prismaClient.channelGroup.findMany({
       where: {
-        serverId,
+        serverId: BigInt(serverId),
       },
       include: {
         channels: true,
       },
     });
 
-    return ChannelGroupDTO.from(channelGroups);
+    return channelGroups.map(ChannelGroupDTO.from);
   }
 
   async create({ user, serverId, channelGroup }) {
