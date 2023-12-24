@@ -14,9 +14,7 @@ class ChannelGroupService {
       where: {
         serverId,
       },
-      select: {
-        id: true,
-        name: true,
+      include: {
         channels: true,
       },
     });

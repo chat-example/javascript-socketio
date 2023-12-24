@@ -1,4 +1,5 @@
 import prismaClient from '../../libs/prismaClient.js';
+import {Role} from "@prisma/client";
 
 class ServerJoinedUserService {
   prismaClient;
@@ -8,12 +9,10 @@ class ServerJoinedUserService {
   }
 
   async isAdmin({ user, server }) {
-    const joinedUser = await this.prismaClient.serverJoinedUser({
+    const joinedUser = await this.prismaClient.serverJoinedUser.findFirst({
       where: {
-        serverId_userId: {
-          serverId: server.id,
-          userId: user.id,
-        }
+        serverId: server.id,
+        userId: user.id,
       },
     });
 

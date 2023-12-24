@@ -1,5 +1,7 @@
 import channelGroupService from "../services/channelGroup.service.js";
 import logger from "../../utils/logger.js";
+import { StatusCodes } from 'http-status-codes';
+import { authByToken } from '../../utils/functions.js';
 
 class ChannelGroupController {
   logger;
@@ -24,16 +26,19 @@ class ChannelGroupController {
   }
 
   async create(req, res, next) {
-    try {
-      this.logger.info(`[channel group / create] create start]`);
-      const { serverId } = req.params;
-      const channelGroup = await this.channelGroupService.create({ serverId, channelGroup: req.body });
 
-      res.status(StatusCodes.CREATED).json(channelGroup);
-    } catch (error) {
-      this.logger.error(error);
-      next(error);
-    }
+    authByToken(req, res, next, (async (user) => {
+      try {
+        this.logger.info(`[channel group / create] create start]`);
+        const { serverId } = req.params;
+        const channelGroup = await this.channelGroupService.create({ user, serverId, channelGroup: req.body });
+  
+        res.status(StatusCodes.CREATED).json(channelGroup);
+      } catch (error) {
+        this.logger.error(error);
+        next(error);
+      }
+    }).bind(this));
   }
 
   async update(req, res, next) {
