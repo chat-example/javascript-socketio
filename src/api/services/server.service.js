@@ -27,14 +27,13 @@ class ServerService {
   }
 
   async create({ user, server }) {
-    const { name, description, icon, banner } = server;
+    const { name, description, password } = server;
 
     const createdServer = await this.prismaClient.server.create({
       data: {
         name,
         description,
-        icon,
-        banner,
+        password,
       },
     });
 
@@ -96,7 +95,7 @@ class ServerService {
   }
 
   async join({ user, server }) {
-    const { id: serverId } = await this.prismaClient.server.findOne({
+    const { id: serverId } = await this.prismaClient.server.findFirst({
       where: {
         name: server.name,
         password: server.password,
@@ -104,14 +103,12 @@ class ServerService {
       select: {
         id: true,
       }
-    })
+    });
 
-    const joinedUser = await this.prismaClient.serverJoinedUser({
+    const joinedUser = await this.prismaClient.serverJoinedUser.findFirst({
       where: {
-        serverId_userId: {
-          serverId: serverId,
-          userId: user.id,
-        }
+        serverId: serverId,
+        userId: user.id,
       },
     });
 
