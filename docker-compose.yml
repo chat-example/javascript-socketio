@@ -16,8 +16,6 @@ services:
     image: redis
     restart: always
     container_name: chat-redis
-    environment:
-      REDIS_USERNAME: hello
-      REDIS_PASSWORD: local
+    command: redis-server --requirepass local
     ports:
       - "6380:6379"

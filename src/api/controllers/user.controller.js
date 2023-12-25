@@ -102,7 +102,7 @@ class UserController {
   async setTokenOnRes(res, user) {
     const token = jwt.sign({ id: user.id, name: user.nickname }, JWT_SECRET)
 
-    res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true })
+    res.cookie(ACCESS_TOKEN, token, { expires: dayjs().add(7, 'day').toDate(), httpOnly: true, secure: true })
   }
 }
 

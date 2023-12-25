@@ -1,9 +1,8 @@
 import { createClient } from 'redis';
-import { REDIS_PATH } from '../constants';
 
 class Redis {
   constructor({ url }) {
-    this.redisClient = redis.createClient({
+    this.redisClient = createClient({
       url
     });
     this.redisClient.on('connect', () => {
@@ -22,10 +21,8 @@ class PubSub extends Redis {
     super(url);
   }
 
-  async subscribe(channel) {
-    await this.redisClient.subscribe(channel, (message) => {
-      console.log("message : ", message);
-    });
+  async subscribe(channel, callback) {
+    await this.redisClient.subscribe(channel, callback);
 
     console.info('채널 연결 완료');
   }
